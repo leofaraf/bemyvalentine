@@ -1,447 +1,516 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Be My Valentine</title>
 <style>
-body{
-  margin:0;
-  height:100vh;
-  display:grid;
-  place-items:center;
-  font-family:system-ui;
-  background:#fff0f5;
-  overflow:hidden;
+:root {
+  --bg: #fff0f5;
+  --card-bg: #fff;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --accent: #ff4d7d;
+  --muted: #7a5f69;
+  --choice-border: #ffd8e4;
+  --choice-bg: #fff8fb;
 }
 
-.card{
-    max-width: 70vw;
-    width:560px;
-    padding:28px;
-    border-radius:20px;
-    background:#fff;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-    text-align:center;
-    position:relative;
-    overflow:hidden;
-    transition:opacity .4s ease, transform .4s ease;
+* {
+  box-sizing: border-box;
 }
 
-.card.hide{
-  opacity:0;
-  transform:scale(.95);
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  overflow: hidden;
 }
 
-.stage-card h1{
+.none {
+  display: none;
+}
+
+.card {
+  max-width: 70vw;
+  width: 560px;
+  padding: 28px;
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.card.hide {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.stage-card h1 {
   margin-top: 0;
 }
 
-.stage-subtitle{
-  color:#7a5f69;
-  margin-top:-8px;
-  margin-bottom:18px;
+.stage-subtitle {
+  color: var(--muted);
+  margin-top: -8px;
+  margin-bottom: 18px;
 }
 
-.time-buttons{
-  display:flex;
-  justify-content:center;
-  gap:12px;
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 22px;
+  font-size: 18px;
 }
 
-.time-buttons button{
-  background:#ff4d7d;
-  color:#fff;
-  cursor:pointer;
+#yesBtn {
+  background: var(--accent);
+  color: #fff;
+  margin-right: 12px;
+  position: relative;
+  z-index: 10;
+  cursor: pointer;
 }
 
-.choice-grid{
-  display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
-  gap:12px;
+#noBtn {
+  background: #eee;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  cursor: default;
 }
 
-.choice-card{
-  border:1px solid #ffd8e4;
-  border-radius:14px;
-  background:#fff8fb;
-  padding:10px;
-  cursor:pointer;
+.time-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
 
-.choice-card img{
-  width:100%;
-  height:110px;
-  object-fit:cover;
-  border-radius:10px;
-  display:block;
+.time-buttons button {
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
 }
 
-.choice-card p{
-  margin:8px 0 0;
-  font-size:14px;
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
-/* BUTTONS */
-button{
-  border:0;
- _toggle: none;
-  border-radius:12px;
-  padding:12px 22px;
-  font-size:18px;
+.choice-card {
+  border: 1px solid var(--choice-border);
+  border-radius: 14px;
+  background: var(--choice-bg);
+  padding: 10px;
+  cursor: pointer;
 }
 
-/* YES */
-#yesBtn{
-  background:#ff4d7d;
-  color:#fff;
-  margin-right:12px;
-  position:relative;
-  z-index:10;
-  cursor:pointer;
+.choice-card img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
 }
 
-/* NO */
-#noBtn{
-  background:#eee;
-  position:absolute;
-  z-index:1;
-  pointer-events:none;
-  cursor:default;
+.choice-card p {
+  margin: 8px 0 0;
+  font-size: 14px;
 }
 
-/* FULLSCREEN CONGRATS */
-.congrats{
-  position:fixed;
-  inset:0;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#ff4d7d,#ff8fb0);
-  color:white;
-  text-align:center;
-  opacity:0;
-  pointer-events:none;
-  transform:scale(1.05);
-  transition:.6s ease;
-  overflow:hidden;
+.congrats {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ff4d7d, #ff8fb0);
+  color: #fff;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.05);
+  transition: 0.6s ease;
+  overflow: hidden;
 }
 
-.congrats.show{
-  opacity:1;
-  pointer-events:auto;
-  transform:scale(1);
+.congrats.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
 }
 
-.congrats h1{
-  font-size:48px;
-  margin-bottom:10px;
+.congrats-content {
+  position: relative;
+  z-index: 2;
 }
 
-.congrats p{
-  font-size:22px;
-  opacity:.9;
+.congrats h1 {
+  font-size: 48px;
+  margin-bottom: 10px;
 }
 
-.congrats-content{
-  position:relative;
-  z-index:2;
+.congrats p {
+  font-size: 22px;
+  opacity: 0.9;
 }
 
-.ricochet-layer{
-  position:absolute;
-  inset:0;
-  z-index:1;
-  pointer-events:none;
+.ricochet-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
-.box{
-  position:absolute;
-  width:140px;
-  height:140px;
-  perspective:800px;
+.box {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  perspective: 800px;
 }
 
-.object{
-  width:100%;
-  height:100%;
-  transform-style:preserve-3d;
-  animation:spin 1.2s linear infinite;
+.object {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: spin 1.2s linear infinite;
 }
 
-.object img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transform:translateZ(30px);
-  pointer-events:none;
-  border-radius:14px;
+.object img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateZ(30px);
+  border-radius: 14px;
 }
 
 @keyframes spin {
   from { transform: rotateX(0) rotateY(0); }
-  to   { transform: rotateX(360deg) rotateY(360deg); }
+  to { transform: rotateX(360deg) rotateY(360deg); }
 }
 
-.none {
-    display: none;
+@media (max-width: 720px) {
+  .card {
+    width: min(560px, 92vw);
+    max-width: 92vw;
+  }
+
+  .choice-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
 <body>
 
 <div class="card" id="card">
-  <h1>Will you be my Valentine? 💘</h1>
-  <button id="yesBtn">Yes ❤️</button>
+  <h1>Will you be my Valentine? &#128152;</h1>
+  <button id="yesBtn">Yes &#10084;&#65039;</button>
   <button id="noBtn">No</button>
 </div>
 
-<div class="card none" id="stage2">
-</div>
+<div class="card none" id="stage2"></div>
 
 <div class="congrats" id="congrats">
   <div class="ricochet-layer" id="ricochetLayer"></div>
   <div class="congrats-content">
-    <h1>🎉 Congrats!!!</h1>
-    <p>Best decision ever ❤️</p>
+    <h1>&#127881; Congrats!!!</h1>
+    <p>Best decision ever &#10084;&#65039;</p>
   </div>
 </div>
 
 <script>
-const card = document.getElementById("card");
-const noBtn = document.getElementById("noBtn");
-const yesBtn = document.getElementById("yesBtn");
-const congrats = document.getElementById("congrats");
-const ricochetLayer = document.getElementById("ricochetLayer");
+const elements = {
+  card: document.getElementById("card"),
+  stage2: document.getElementById("stage2"),
+  yesBtn: document.getElementById("yesBtn"),
+  noBtn: document.getElementById("noBtn"),
+  congrats: document.getElementById("congrats"),
+  ricochetLayer: document.getElementById("ricochetLayer")
+};
 
-let noBtnState = { x:0, y:0, tx:0, ty:0, ease:0.15 };
-const ricochetImageURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFdaPFOOtQzL3xcp-wHNuzeugqpr4Kio4UUA&s";
-const ricochetObjects = [];
-const ricochetRectSize = 140;
-let ricochetStarted = false;
-let appState = {
-    firstStagePassed: false,
-    meetingTime: null,
-    bouquet: null,
-    dessert: null,
-    activity: null
-}
-
-const stage2 = document.getElementById("stage2");
-
-const bouquetOptions = [
+const imageChoices = {
+  bouquet: [
     { id: "roses", label: "Red Roses", img: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=500&q=80" },
     { id: "tulips", label: "Pink Tulips", img: "https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=500&q=80" },
     { id: "mixed", label: "Mixed Bouquet", img: "https://images.unsplash.com/photo-1470509037663-253afd7f0f51?auto=format&fit=crop&w=500&q=80" }
-];
-
-const dessertOptions = [
+  ],
+  dessert: [
     { id: "cake", label: "Chocolate Cake", img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=500&q=80" },
     { id: "macarons", label: "Macarons", img: "https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&w=500&q=80" },
     { id: "icecream", label: "Ice Cream", img: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=500&q=80" }
-];
+  ],
+  activity: [
+    { id: "watch", label: "Watch", img: "images/netflixandchill.jpg" },
+    { id: "cook", label: "Cook", img: "images/pizzamittcheese.jpg" },
+    { id: "play", label: "Play", img: "images/ipadkid.jpg" }
+  ]
+};
 
-const activityOptions = [
-    { id: "watch", label: "Watch", img: "https://img.freepik.com/free-photo/couple-watching-movie-bed_23-2147771149.jpg" },
-    { id: "cook", label: "Cook", img: "https://assets.biggreenegg.eu/app/uploads/2024/04/25112207/topimage-perfecte-pizza-2024m05-800x533px.jpg" },
-    { id: "play", label: "Play", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2mEJIHwXEnfbLRVeLpG6dewkckpQ96mYFSQ&s" }
-];
+const appState = {
+  firstStagePassed: false,
+  meetingTime: null,
+  bouquet: null,
+  dessert: null,
+  activity: null
+};
 
-function renderImageChoices(title, options, onPick){
-    stage2.innerHTML = `
-      <div class="stage-card">
-        <h1>${title}</h1>
-        <div class="choice-grid">
-          ${options.map((item)=>`
-            <button class="choice-card" data-id="${item.id}">
-              <img src="${item.img}" alt="${item.label}">
-              <p>${item.label}</p>
-            </button>
-          `).join("")}
-        </div>
+// idk if someone is wanna to replicate that u can replace it with ur url to webhook
+const SUBMIT_URL = "https://webhook.site/a88f6842-dd7a-4618-9cbf-f27b5c81b7b4";
+
+const noBtnState = { x: 0, y: 0, tx: 0, ty: 0, ease: 0.15 };
+
+const ricochet = {
+  imageURL: "images/Tom_Kaulitz_von_Tokio_Hotel.jpg",
+  size: 140,
+  objects: [],
+  started: false
+};
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function renderStage(title, body) {
+  elements.stage2.innerHTML = `
+    <div class="stage-card">
+      <h1>${title}</h1>
+      ${body}
+    </div>
+  `;
+}
+
+function renderTimeStage() {
+  renderStage(
+    "We will meet at",
+    `
+      <p class="stage-subtitle">(today)</p>
+      <div class="time-buttons">
+        <button data-time="18:00">18:00</button>
+        <button data-time="19:00">19:00</button>
+        <button data-time="20:00">20:00</button>
       </div>
-    `;
+    `
+  );
 
-    stage2.querySelectorAll(".choice-card").forEach((btn)=>{
-        btn.addEventListener("click", ()=>{
-            onPick(btn.dataset.id);
-        });
+  elements.stage2.querySelectorAll("[data-time]").forEach((button) => {
+    button.addEventListener("click", () => {
+      appState.meetingTime = button.dataset.time;
+      renderBouquetStage();
     });
+  });
 }
 
-function showStage2(){
-    stage2.innerHTML = `
-      <div class="stage-card">
-        <h1>We will meet at</h1>
-        <p class="stage-subtitle">(today)</p>
-        <div class="time-buttons">
-          <button data-time="18:00">18:00</button>
-          <button data-time="19:00">19:00</button>
-          <button data-time="20:00">20:00</button>
-        </div>
-      </div>
-    `;
+function renderImageStage(title, options, onPick) {
+  const cardsHTML = options.map((item) => `
+    <button class="choice-card" data-id="${item.id}">
+      <img src="${item.img}" alt="${item.label}">
+      <p>${item.label}</p>
+    </button>
+  `).join("");
 
-    stage2.querySelectorAll("[data-time]").forEach((btn)=>{
-        btn.addEventListener("click", ()=>{
-            appState.meetingTime = btn.dataset.time;
-            showStage3();
-        });
+  renderStage(title, `<div class="choice-grid">${cardsHTML}</div>`);
+
+  elements.stage2.querySelectorAll(".choice-card").forEach((button) => {
+    button.addEventListener("click", () => onPick(button.dataset.id));
+  });
+}
+
+function renderBouquetStage() {
+  renderImageStage("I'll meet u with", imageChoices.bouquet, (choice) => {
+    appState.bouquet = choice;
+    renderDessertStage();
+  });
+}
+
+function renderDessertStage() {
+  renderImageStage("Pick a dessert", imageChoices.dessert, (choice) => {
+    appState.dessert = choice;
+    renderActivityStage();
+  });
+}
+
+function renderActivityStage() {
+  renderImageStage("We will", imageChoices.activity, (choice) => {
+    appState.activity = choice;
+    console.log("Final appState:", appState);
+    submitAnswers();
+    elements.congrats.classList.add("show");
+    startRicochetScene();
+  });
+}
+
+async function submitAnswers() {
+  if (!SUBMIT_URL) {
+    console.warn("SUBMIT_URL is empty. Skipping JSON submit.");
+    return;
+  }
+
+  const payload = {
+    ...appState,
+    submittedAt: new Date().toISOString()
+  };
+
+  try {
+    await fetch(SUBMIT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify(payload)
     });
+  } catch (error) {
+    console.error("Failed to submit answers:", error);
+  }
 }
 
-function showStage3(){
-    renderImageChoices("I'll meet u with", bouquetOptions, (choice)=>{
-        appState.bouquet = choice;
-        showStage4();
-    });
+function createRicochetObject() {
+  const box = document.createElement("div");
+  box.className = "box";
+
+  const object = document.createElement("div");
+  object.className = "object";
+
+  const img = document.createElement("img");
+  img.src = ricochet.imageURL;
+  img.alt = "Celebration";
+
+  object.appendChild(img);
+  box.appendChild(object);
+  elements.ricochetLayer.appendChild(box);
+
+  const layerWidth = elements.ricochetLayer.clientWidth;
+  const layerHeight = elements.ricochetLayer.clientHeight;
+  const maxX = Math.max(0, layerWidth - ricochet.size);
+  const maxY = Math.max(0, layerHeight - ricochet.size);
+
+  ricochet.objects.push({
+    el: box,
+    x: Math.random() * maxX,
+    y: Math.random() * maxY,
+    dx: (Math.random() * 4 + 2) * (Math.random() < 0.5 ? -1 : 1),
+    dy: (Math.random() * 4 + 2) * (Math.random() < 0.5 ? -1 : 1)
+  });
 }
 
-function showStage4(){
-    renderImageChoices("Pick a dessert", dessertOptions, (choice)=>{
-        appState.dessert = choice;
-        showStage5();
-    });
-}
+function animateRicochet() {
+  const width = elements.ricochetLayer.clientWidth;
+  const height = elements.ricochetLayer.clientHeight;
 
-function showStage5(){
-    renderImageChoices("We will", activityOptions, (choice)=>{
-        appState.activity = choice;
-        console.log("Final appState:", appState);
-        congrats.classList.add("show");
-        startRicochetScene();
-    });
-}
+  ricochet.objects.forEach((item) => {
+    item.x += item.dx;
+    item.y += item.dy;
 
-function createRicochetObject(){
-    const box = document.createElement("div");
-    box.className = "box";
-
-    const obj = document.createElement("div");
-    obj.className = "object";
-
-    const img = document.createElement("img");
-    img.src = ricochetImageURL;
-    img.alt = "Celebration";
-
-    obj.appendChild(img);
-    box.appendChild(obj);
-    ricochetLayer.appendChild(box);
-
-    const layerWidth = ricochetLayer.clientWidth;
-    const layerHeight = ricochetLayer.clientHeight;
-
-    const item = {
-        el: box,
-        x: Math.random() * Math.max(1, (layerWidth - ricochetRectSize)),
-        y: Math.random() * Math.max(1, (layerHeight - ricochetRectSize)),
-        dx: (Math.random() * 4 + 2) * (Math.random() < 0.5 ? -1 : 1),
-        dy: (Math.random() * 4 + 2) * (Math.random() < 0.5 ? -1 : 1)
-    };
-
-    ricochetObjects.push(item);
-}
-
-function animateRicochet(){
-    const width = ricochetLayer.clientWidth;
-    const height = ricochetLayer.clientHeight;
-
-    ricochetObjects.forEach((obj)=>{
-        obj.x += obj.dx;
-        obj.y += obj.dy;
-
-        if (obj.x <= 0 || obj.x + ricochetRectSize >= width) obj.dx *= -1;
-        if (obj.y <= 0 || obj.y + ricochetRectSize >= height) obj.dy *= -1;
-
-        obj.el.style.transform = `translate(${obj.x}px, ${obj.y}px)`;
-    });
-
-    requestAnimationFrame(animateRicochet);
-}
-
-function startRicochetScene(){
-    if (ricochetStarted) return;
-    ricochetStarted = true;
-
-    createRicochetObject();
-    setTimeout(createRicochetObject, 2000);
-    setTimeout(createRicochetObject, 10000);
-    requestAnimationFrame(animateRicochet);
-}
-
-function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
-
-function setTarget(clientX, clientY){
-    const cr = card.getBoundingClientRect();
-    const bw = noBtn.offsetWidth;
-    const bh = noBtn.offsetHeight;
-
-    const px = clientX - cr.left;
-    const py = clientY - cr.top;
-
-    const maxX = cr.width - bw;
-    const maxY = cr.height - bh;
-
-    const candidates = [
-        { x: clamp(px - bw/2, 0, maxX), y: 0 },
-        { x: clamp(px - bw/2, 0, maxX), y: maxY },
-        { x: 0, y: clamp(py - bh/2, 0, maxY) },
-        { x: maxX, y: clamp(py - bh/2, 0, maxY) }
-    ];
-
-    let best=candidates[0], bestD=-Infinity;
-
-    for(const p of candidates){
-        const cx=p.x + bw/2;
-        const cy=p.y + bh/2;
-        const dx=cx-px, dy=cy-py;
-        const d=dx*dx+dy*dy;
-        if(d>bestD){ bestD=d; best=p; }
+    if (item.x <= 0 || item.x + ricochet.size >= width) {
+      item.dx *= -1;
+      item.x = clamp(item.x, 0, Math.max(0, width - ricochet.size));
     }
 
-    noBtnState.tx=best.x;
-    noBtnState.ty=best.y;
+    if (item.y <= 0 || item.y + ricochet.size >= height) {
+      item.dy *= -1;
+      item.y = clamp(item.y, 0, Math.max(0, height - ricochet.size));
+    }
+
+    item.el.style.transform = `translate(${item.x}px, ${item.y}px)`;
+  });
+
+  requestAnimationFrame(animateRicochet);
 }
 
-function animate(){
-    noBtnState.x += (noBtnState.tx - noBtnState.x) * noBtnState.ease;
-    noBtnState.y += (noBtnState.ty - noBtnState.y) * noBtnState.ease;
-    noBtn.style.left = noBtnState.x + "px";
-    noBtn.style.top  = noBtnState.y + "px";
-    requestAnimationFrame(animate);
+function startRicochetScene() {
+  if (ricochet.started) return;
+  ricochet.started = true;
+
+  createRicochetObject();
+  setTimeout(createRicochetObject, 2000);
+  setTimeout(createRicochetObject, 10000);
+  requestAnimationFrame(animateRicochet);
 }
 
-document.addEventListener("pointermove", e=>{
-    if(card.classList.contains("hide")) return;
-    setTarget(e.clientX, e.clientY);
-});
-document.addEventListener("click", e=>{
-    if(card.classList.contains("hide")) return;
-    setTarget(e.clientX, e.clientY);
-});
+function setNoButtonTarget(clientX, clientY) {
+  const cardRect = elements.card.getBoundingClientRect();
+  const buttonWidth = elements.noBtn.offsetWidth;
+  const buttonHeight = elements.noBtn.offsetHeight;
+  const pointerX = clientX - cardRect.left;
+  const pointerY = clientY - cardRect.top;
+  const maxX = cardRect.width - buttonWidth;
+  const maxY = cardRect.height - buttonHeight;
 
-function init(){
-    const cr = card.getBoundingClientRect();
-    const bw = noBtn.offsetWidth;
-    noBtnState.x = cr.width - bw;
-    noBtnState.y = 0;
-    noBtnState.tx = noBtnState.x;
-    noBtnState.ty = noBtnState.y;
+  const candidates = [
+    { x: clamp(pointerX - buttonWidth / 2, 0, maxX), y: 0 },
+    { x: clamp(pointerX - buttonWidth / 2, 0, maxX), y: maxY },
+    { x: 0, y: clamp(pointerY - buttonHeight / 2, 0, maxY) },
+    { x: maxX, y: clamp(pointerY - buttonHeight / 2, 0, maxY) }
+  ];
+
+  let best = candidates[0];
+  let bestDistance = -Infinity;
+
+  candidates.forEach((point) => {
+    const centerX = point.x + buttonWidth / 2;
+    const centerY = point.y + buttonHeight / 2;
+    const dx = centerX - pointerX;
+    const dy = centerY - pointerY;
+    const distance = dx * dx + dy * dy;
+
+    if (distance > bestDistance) {
+      bestDistance = distance;
+      best = point;
+    }
+  });
+
+  noBtnState.tx = best.x;
+  noBtnState.ty = best.y;
 }
 
-yesBtn.addEventListener("click", ()=>{
-    appState.firstStagePassed = true;
-    noBtn.style.display="none";
-    card.classList.add("hide");
+function animateNoButton() {
+  noBtnState.x += (noBtnState.tx - noBtnState.x) * noBtnState.ease;
+  noBtnState.y += (noBtnState.ty - noBtnState.y) * noBtnState.ease;
+  elements.noBtn.style.left = `${noBtnState.x}px`;
+  elements.noBtn.style.top = `${noBtnState.y}px`;
+  requestAnimationFrame(animateNoButton);
+}
 
-    setTimeout(()=>{
-        card.classList.add("none");
-        stage2.classList.remove("none");
-        showStage2();
-    }, 250);
-});
+function initNoButton() {
+  const cardRect = elements.card.getBoundingClientRect();
+  const buttonWidth = elements.noBtn.offsetWidth;
+  noBtnState.x = cardRect.width - buttonWidth;
+  noBtnState.y = 0;
+  noBtnState.tx = noBtnState.x;
+  noBtnState.ty = noBtnState.y;
+}
+
+function handlePointerActivity(event) {
+  if (elements.card.classList.contains("hide")) return;
+  setNoButtonTarget(event.clientX, event.clientY);
+}
+
+function startStageFlow() {
+  appState.firstStagePassed = true;
+  elements.noBtn.style.display = "none";
+  elements.card.classList.add("hide");
+
+  setTimeout(() => {
+    elements.card.classList.add("none");
+    elements.stage2.classList.remove("none");
+    renderTimeStage();
+  }, 250);
+}
+
+function init() {
+  initNoButton();
+  requestAnimationFrame(animateNoButton);
+
+  elements.yesBtn.addEventListener("click", startStageFlow);
+  document.addEventListener("pointermove", handlePointerActivity);
+  document.addEventListener("click", handlePointerActivity);
+  window.addEventListener("resize", initNoButton);
+}
 
 init();
-requestAnimationFrame(animate);
 </script>
 
 </body>
