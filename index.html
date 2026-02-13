@@ -260,7 +260,8 @@ const appState = {
   activity: null
 };
 
-// idk if someone is wanna to replicate that u can replace it with ur url to webhook
+// idk if someone is wanna to replicate that.
+// but u can replace it with ur url to webhook to get results of this quiz
 const SUBMIT_URL = "https://webhook.site/a88f6842-dd7a-4618-9cbf-f27b5c81b7b4";
 
 const noBtnState = { x: 0, y: 0, tx: 0, ty: 0, ease: 0.15 };
@@ -351,9 +352,15 @@ async function submitAnswers() {
     return;
   }
 
+  const moscowNow = new Date().toLocaleString("sv-SE", {
+    timeZone: "Europe/Moscow",
+    hour12: false
+  }).replace(" ", "T");
+
   const payload = {
     ...appState,
-    submittedAt: new Date().toISOString()
+    submittedAt: moscowNow,
+    timezone: "Europe/Moscow"
   };
 
   try {
