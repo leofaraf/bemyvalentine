@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Be My Valentine</title>
 <style>
 body{
@@ -14,17 +15,17 @@ body{
   overflow:hidden;
 }
 
-/* CARD */
 .card{
-  width:560px;
-  padding:28px;
-  border-radius:20px;
-  background:#fff;
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
-  text-align:center;
-  position:relative;
-  overflow:hidden;
-  transition:opacity .4s ease, transform .4s ease;
+    max-width: 70vw;
+    width:560px;
+    padding:28px;
+    border-radius:20px;
+    background:#fff;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    transition:opacity .4s ease, transform .4s ease;
 }
 
 .card.hide{
@@ -88,6 +89,10 @@ button{
   font-size:22px;
   opacity:.9;
 }
+
+.none {
+    display: none;
+}
 </style>
 </head>
 <body>
@@ -96,6 +101,10 @@ button{
   <h1>Will you be my Valentine? 💘</h1>
   <button id="yesBtn">Yes ❤️</button>
   <button id="noBtn">No</button>
+</div>
+
+<div class="card none" id="stage2">
+
 </div>
 
 <div class="congrats" id="congrats">
@@ -111,71 +120,78 @@ const noBtn = document.getElementById("noBtn");
 const yesBtn = document.getElementById("yesBtn");
 const congrats = document.getElementById("congrats");
 
-let state = { x:0, y:0, tx:0, ty:0, ease:0.15 };
+let noBtnState = { x:0, y:0, tx:0, ty:0, ease:0.15 };
+let appState = {
+    firstStagePassed: false,
+}
 
 function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
 
 function setTarget(clientX, clientY){
-  const cr = card.getBoundingClientRect();
-  const bw = noBtn.offsetWidth;
-  const bh = noBtn.offsetHeight;
+    const cr = card.getBoundingClientRect();
+    const bw = noBtn.offsetWidth;
+    const bh = noBtn.offsetHeight;
 
-  const px = clientX - cr.left;
-  const py = clientY - cr.top;
+    const px = clientX - cr.left;
+    const py = clientY - cr.top;
 
-  const maxX = cr.width - bw;
-  const maxY = cr.height - bh;
+    const maxX = cr.width - bw;
+    const maxY = cr.height - bh;
 
-  const candidates = [
-    { x: clamp(px - bw/2, 0, maxX), y: 0 },
-    { x: clamp(px - bw/2, 0, maxX), y: maxY },
-    { x: 0, y: clamp(py - bh/2, 0, maxY) },
-    { x: maxX, y: clamp(py - bh/2, 0, maxY) }
-  ];
+    const candidates = [
+        { x: clamp(px - bw/2, 0, maxX), y: 0 },
+        { x: clamp(px - bw/2, 0, maxX), y: maxY },
+        { x: 0, y: clamp(py - bh/2, 0, maxY) },
+        { x: maxX, y: clamp(py - bh/2, 0, maxY) }
+    ];
 
-  let best=candidates[0], bestD=-Infinity;
+    let best=candidates[0], bestD=-Infinity;
 
-  for(const p of candidates){
-    const cx=p.x + bw/2;
-    const cy=p.y + bh/2;
-    const dx=cx-px, dy=cy-py;
-    const d=dx*dx+dy*dy;
-    if(d>bestD){ bestD=d; best=p; }
-  }
+    for(const p of candidates){
+        const cx=p.x + bw/2;
+        const cy=p.y + bh/2;
+        const dx=cx-px, dy=cy-py;
+        const d=dx*dx+dy*dy;
+        if(d>bestD){ bestD=d; best=p; }
+    }
 
-  state.tx=best.x;
-  state.ty=best.y;
+    noBtnState.tx=best.x;
+    noBtnState.ty=best.y;
 }
 
 function animate(){
-  state.x += (state.tx - state.x) * state.ease;
-  state.y += (state.ty - state.y) * state.ease;
-  noBtn.style.left = state.x + "px";
-  noBtn.style.top  = state.y + "px";
-  requestAnimationFrame(animate);
+    noBtnState.x += (noBtnState.tx - noBtnState.x) * noBtnState.ease;
+    noBtnState.y += (noBtnState.ty - noBtnState.y) * noBtnState.ease;
+    noBtn.style.left = noBtnState.x + "px";
+    noBtn.style.top  = noBtnState.y + "px";
+    requestAnimationFrame(animate);
 }
 
 document.addEventListener("pointermove", e=>{
-  if(congrats.classList.contains("show")) return;
-  setTarget(e.clientX, e.clientY);
+    if(card.classList.contains("hide")) return;
+    setTarget(e.clientX, e.clientY);
+});
+document.addEventListener("click", e=>{
+    if(card.classList.contains("hide")) return;
+    setTarget(e.clientX, e.clientY);
 });
 
 function init(){
-  const cr = card.getBoundingClientRect();
-  const bw = noBtn.offsetWidth;
-  state.x = cr.width - bw;
-  state.y = 0;
-  state.tx = state.x;
-  state.ty = state.y;
+    const cr = card.getBoundingClientRect();
+    const bw = noBtn.offsetWidth;
+    noBtnState.x = cr.width - bw;
+    noBtnState.y = 0;
+    noBtnState.tx = noBtnState.x;
+    noBtnState.ty = noBtnState.y;
 }
 
 yesBtn.addEventListener("click", ()=>{
-  noBtn.style.display="none";
-  card.classList.add("hide");
+    noBtn.style.display="none";
+    card.classList.add("hide");
 
-  setTimeout(()=>{
-    congrats.classList.add("show");
-  }, 250);
+    setTimeout(()=>{
+        congrats.classList.add("show");
+    }, 250);
 });
 
 init();
