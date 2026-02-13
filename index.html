@@ -155,7 +155,7 @@ function animate(){
   requestAnimationFrame(animate);
 }
 
-card.addEventListener("pointermove", e=>{
+document.addEventListener("pointermove", e=>{
   if(congrats.classList.contains("show")) return;
   setTarget(e.clientX, e.clientY);
 });
