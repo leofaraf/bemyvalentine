@@ -1,11 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeMyValentine</title>
+<meta charset="UTF-8" />
+<title>Be My Valentine</title>
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:grid;
+  place-items:center;
+  font-family:system-ui;
+  background:#fff0f5;
+  overflow:hidden;
+}
+
+/* CARD */
+.card{
+  width:560px;
+  padding:28px;
+  border-radius:20px;
+  background:#fff;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  transition:opacity .4s ease, transform .4s ease;
+}
+
+.card.hide{
+  opacity:0;
+  transform:scale(.95);
+}
+
+/* BUTTONS */
+button{
+  border:0;
+ _toggle: none;
+  border-radius:12px;
+  padding:12px 22px;
+  font-size:18px;
+}
+
+/* YES */
+#yesBtn{
+  background:#ff4d7d;
+  color:#fff;
+  margin-right:12px;
+  position:relative;
+  z-index:10;
+  cursor:pointer;
+}
+
+/* NO */
+#noBtn{
+  background:#eee;
+  position:absolute;
+  z-index:1;
+  pointer-events:none;
+  cursor:default;
+}
+
+/* FULLSCREEN CONGRATS */
+.congrats{
+  position:fixed;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#ff4d7d,#ff8fb0);
+  color:white;
+  text-align:center;
+  opacity:0;
+  transform:scale(1.05);
+  transition:.6s ease;
+}
+
+.congrats.show{
+  opacity:1;
+  transform:scale(1);
+}
+
+.congrats h1{
+  font-size:48px;
+  margin-bottom:10px;
+}
+
+.congrats p{
+  font-size:22px;
+  opacity:.9;
+}
+</style>
 </head>
 <body>
-    
+
+<div class="card" id="card">
+  <h1>Will you be my Valentine? 💘</h1>
+  <button id="yesBtn">Yes ❤️</button>
+  <button id="noBtn">No</button>
+</div>
+
+<div class="congrats" id="congrats">
+  <div>
+    <h1>🎉 Congrats!!!</h1>
+    <p>Best decision ever ❤️</p>
+  </div>
+</div>
+
+<script>
+const card = document.getElementById("card");
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const congrats = document.getElementById("congrats");
+
+let state = { x:0, y:0, tx:0, ty:0, ease:0.15 };
+
+function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+
+function setTarget(clientX, clientY){
+  const cr = card.getBoundingClientRect();
+  const bw = noBtn.offsetWidth;
+  const bh = noBtn.offsetHeight;
+
+  const px = clientX - cr.left;
+  const py = clientY - cr.top;
+
+  const maxX = cr.width - bw;
+  const maxY = cr.height - bh;
+
+  const candidates = [
+    { x: clamp(px - bw/2, 0, maxX), y: 0 },
+    { x: clamp(px - bw/2, 0, maxX), y: maxY },
+    { x: 0, y: clamp(py - bh/2, 0, maxY) },
+    { x: maxX, y: clamp(py - bh/2, 0, maxY) }
+  ];
+
+  let best=candidates[0], bestD=-Infinity;
+
+  for(const p of candidates){
+    const cx=p.x + bw/2;
+    const cy=p.y + bh/2;
+    const dx=cx-px, dy=cy-py;
+    const d=dx*dx+dy*dy;
+    if(d>bestD){ bestD=d; best=p; }
+  }
+
+  state.tx=best.x;
+  state.ty=best.y;
+}
+
+function animate(){
+  state.x += (state.tx - state.x) * state.ease;
+  state.y += (state.ty - state.y) * state.ease;
+  noBtn.style.left = state.x + "px";
+  noBtn.style.top  = state.y + "px";
+  requestAnimationFrame(animate);
+}
+
+card.addEventListener("pointermove", e=>{
+  if(congrats.classList.contains("show")) return;
+  setTarget(e.clientX, e.clientY);
+});
+
+function init(){
+  const cr = card.getBoundingClientRect();
+  const bw = noBtn.offsetWidth;
+  state.x = cr.width - bw;
+  state.y = 0;
+  state.tx = state.x;
+  state.ty = state.y;
+}
+
+yesBtn.addEventListener("click", ()=>{
+  noBtn.style.display="none";
+  card.classList.add("hide");
+
+  setTimeout(()=>{
+    congrats.classList.add("show");
+  }, 250);
+});
+
+init();
+requestAnimationFrame(animate);
+</script>
+
 </body>
 </html>
