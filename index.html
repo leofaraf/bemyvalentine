@@ -33,6 +33,55 @@ body{
   transform:scale(.95);
 }
 
+.stage-card h1{
+  margin-top: 0;
+}
+
+.stage-subtitle{
+  color:#7a5f69;
+  margin-top:-8px;
+  margin-bottom:18px;
+}
+
+.time-buttons{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+}
+
+.time-buttons button{
+  background:#ff4d7d;
+  color:#fff;
+  cursor:pointer;
+}
+
+.choice-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:12px;
+}
+
+.choice-card{
+  border:1px solid #ffd8e4;
+  border-radius:14px;
+  background:#fff8fb;
+  padding:10px;
+  cursor:pointer;
+}
+
+.choice-card img{
+  width:100%;
+  height:110px;
+  object-fit:cover;
+  border-radius:10px;
+  display:block;
+}
+
+.choice-card p{
+  margin:8px 0 0;
+  font-size:14px;
+}
+
 /* BUTTONS */
 button{
   border:0;
@@ -71,12 +120,14 @@ button{
   color:white;
   text-align:center;
   opacity:0;
+  pointer-events:none;
   transform:scale(1.05);
   transition:.6s ease;
 }
 
 .congrats.show{
   opacity:1;
+  pointer-events:auto;
   transform:scale(1);
 }
 
@@ -104,7 +155,6 @@ button{
 </div>
 
 <div class="card none" id="stage2">
-
 </div>
 
 <div class="congrats" id="congrats">
@@ -123,6 +173,95 @@ const congrats = document.getElementById("congrats");
 let noBtnState = { x:0, y:0, tx:0, ty:0, ease:0.15 };
 let appState = {
     firstStagePassed: false,
+    meetingTime: null,
+    bouquet: null,
+    dessert: null,
+    activity: null
+}
+
+const stage2 = document.getElementById("stage2");
+
+const bouquetOptions = [
+    { id: "roses", label: "Red Roses", img: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=500&q=80" },
+    { id: "tulips", label: "Pink Tulips", img: "https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=500&q=80" },
+    { id: "mixed", label: "Mixed Bouquet", img: "https://images.unsplash.com/photo-1470509037663-253afd7f0f51?auto=format&fit=crop&w=500&q=80" }
+];
+
+const dessertOptions = [
+    { id: "cake", label: "Chocolate Cake", img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=500&q=80" },
+    { id: "macarons", label: "Macarons", img: "https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&w=500&q=80" },
+    { id: "icecream", label: "Ice Cream", img: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=500&q=80" }
+];
+
+const activityOptions = [
+    { id: "watch", label: "Watch", img: "https://img.freepik.com/free-photo/couple-watching-movie-bed_23-2147771149.jpg" },
+    { id: "cook", label: "Cook", img: "https://assets.biggreenegg.eu/app/uploads/2024/04/25112207/topimage-perfecte-pizza-2024m05-800x533px.jpg" },
+    { id: "play", label: "Play", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2mEJIHwXEnfbLRVeLpG6dewkckpQ96mYFSQ&s" }
+];
+
+function renderImageChoices(title, options, onPick){
+    stage2.innerHTML = `
+      <div class="stage-card">
+        <h1>${title}</h1>
+        <div class="choice-grid">
+          ${options.map((item)=>`
+            <button class="choice-card" data-id="${item.id}">
+              <img src="${item.img}" alt="${item.label}">
+              <p>${item.label}</p>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+
+    stage2.querySelectorAll(".choice-card").forEach((btn)=>{
+        btn.addEventListener("click", ()=>{
+            onPick(btn.dataset.id);
+        });
+    });
+}
+
+function showStage2(){
+    stage2.innerHTML = `
+      <div class="stage-card">
+        <h1>We will meet at</h1>
+        <p class="stage-subtitle">(today)</p>
+        <div class="time-buttons">
+          <button data-time="18:00">18:00</button>
+          <button data-time="19:00">19:00</button>
+          <button data-time="20:00">20:00</button>
+        </div>
+      </div>
+    `;
+
+    stage2.querySelectorAll("[data-time]").forEach((btn)=>{
+        btn.addEventListener("click", ()=>{
+            appState.meetingTime = btn.dataset.time;
+            showStage3();
+        });
+    });
+}
+
+function showStage3(){
+    renderImageChoices("I'll meet u with", bouquetOptions, (choice)=>{
+        appState.bouquet = choice;
+        showStage4();
+    });
+}
+
+function showStage4(){
+    renderImageChoices("Pick a dessert", dessertOptions, (choice)=>{
+        appState.dessert = choice;
+        showStage5();
+    });
+}
+
+function showStage5(){
+    renderImageChoices("We will", activityOptions, (choice)=>{
+        appState.activity = choice;
+        console.log("Final appState:", appState);
+        congrats.classList.add("show");
+    });
 }
 
 function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
@@ -186,11 +325,14 @@ function init(){
 }
 
 yesBtn.addEventListener("click", ()=>{
+    appState.firstStagePassed = true;
     noBtn.style.display="none";
     card.classList.add("hide");
 
     setTimeout(()=>{
-        congrats.classList.add("show");
+        card.classList.add("none");
+        stage2.classList.remove("none");
+        showStage2();
     }, 250);
 });
 
