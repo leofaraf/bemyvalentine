@@ -123,6 +123,7 @@ button{
   pointer-events:none;
   transform:scale(1.05);
   transition:.6s ease;
+  overflow:hidden;
 }
 
 .congrats.show{
@@ -139,6 +140,46 @@ button{
 .congrats p{
   font-size:22px;
   opacity:.9;
+}
+
+.congrats-content{
+  position:relative;
+  z-index:2;
+}
+
+.ricochet-layer{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+}
+
+.box{
+  position:absolute;
+  width:140px;
+  height:140px;
+  perspective:800px;
+}
+
+.object{
+  width:100%;
+  height:100%;
+  transform-style:preserve-3d;
+  animation:spin 1.2s linear infinite;
+}
+
+.object img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:translateZ(30px);
+  pointer-events:none;
+  border-radius:14px;
+}
+
+@keyframes spin {
+  from { transform: rotateX(0) rotateY(0); }
+  to   { transform: rotateX(360deg) rotateY(360deg); }
 }
 
 .none {
@@ -158,7 +199,8 @@ button{
 </div>
 
 <div class="congrats" id="congrats">
-  <div>
+  <div class="ricochet-layer" id="ricochetLayer"></div>
+  <div class="congrats-content">
     <h1>🎉 Congrats!!!</h1>
     <p>Best decision ever ❤️</p>
   </div>
@@ -169,8 +211,13 @@ const card = document.getElementById("card");
 const noBtn = document.getElementById("noBtn");
 const yesBtn = document.getElementById("yesBtn");
 const congrats = document.getElementById("congrats");
+const ricochetLayer = document.getElementById("ricochetLayer");
 
 let noBtnState = { x:0, y:0, tx:0, ty:0, ease:0.15 };
+const ricochetImageURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFdaPFOOtQzL3xcp-wHNuzeugqpr4Kio4UUA&s";
+const ricochetObjects = [];
+const ricochetRectSize = 140;
+let ricochetStarted = false;
 let appState = {
     firstStagePassed: false,
     meetingTime: null,
@@ -261,7 +308,64 @@ function showStage5(){
         appState.activity = choice;
         console.log("Final appState:", appState);
         congrats.classList.add("show");
+        startRicochetScene();
     });
+}
+
+function createRicochetObject(){
+    const box = document.createElement("div");
+    box.className = "box";
+
+    const obj = document.createElement("div");
+    obj.className = "object";
+
+    const img = document.createElement("img");
+    img.src = ricochetImageURL;
+    img.alt = "Celebration";
+
+    obj.appendChild(img);
+    box.appendChild(obj);
+    ricochetLayer.appendChild(box);
+
+    const layerWidth = ricochetLayer.clientWidth;
+    const layerHeight = ricochetLayer.clientHeight;
+
+    const item = {
+        el: box,
+        x: Math.random() * Math.max(1, (layerWidth - ricochetRectSize)),
+        y: Math.random() * Math.max(1, (layerHeight - ricochetRectSize)),
+        dx: (Math.random() * 4 + 2) * (Math.random() < 0.5 ? -1 : 1),
+        dy: (Math.random() * 4 + 2) * (Math.random() < 0.5 ? -1 : 1)
+    };
+
+    ricochetObjects.push(item);
+}
+
+function animateRicochet(){
+    const width = ricochetLayer.clientWidth;
+    const height = ricochetLayer.clientHeight;
+
+    ricochetObjects.forEach((obj)=>{
+        obj.x += obj.dx;
+        obj.y += obj.dy;
+
+        if (obj.x <= 0 || obj.x + ricochetRectSize >= width) obj.dx *= -1;
+        if (obj.y <= 0 || obj.y + ricochetRectSize >= height) obj.dy *= -1;
+
+        obj.el.style.transform = `translate(${obj.x}px, ${obj.y}px)`;
+    });
+
+    requestAnimationFrame(animateRicochet);
+}
+
+function startRicochetScene(){
+    if (ricochetStarted) return;
+    ricochetStarted = true;
+
+    createRicochetObject();
+    setTimeout(createRicochetObject, 2000);
+    setTimeout(createRicochetObject, 10000);
+    requestAnimationFrame(animateRicochet);
 }
 
 function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
